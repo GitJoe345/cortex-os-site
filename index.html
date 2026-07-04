@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cortex — Agentic OS</title>
+<meta name="description" content="Cortex is an agentic operating system: a desktop environment where AI agents plan, remember, and act — with voice, memory, and orchestration built in.">
+<style>
+  :root {
+    --bg: #07070a;
+    --surface: #101016;
+    --text: #e8e6df;
+    --muted: #8a8778;
+    --gold: #d4a843;
+    --border: #23222b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212, 168, 67, 0.12), transparent);
+  }
+  main { max-width: 640px; text-align: center; }
+  .orb {
+    width: 72px; height: 72px;
+    margin: 0 auto 2rem;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgba(212,168,67,0.9), rgba(212,168,67,0.15) 60%, transparent);
+    box-shadow: 0 0 40px rgba(212,168,67,0.35), inset 0 0 20px rgba(212,168,67,0.25);
+    animation: breathe 4s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); opacity: 0.85; }
+    50% { transform: scale(1.08); opacity: 1; }
+  }
+  h1 {
+    font-size: clamp(2.4rem, 7vw, 3.6rem);
+    letter-spacing: 0.28em;
+    font-weight: 300;
+    text-indent: 0.28em;
+  }
+  .tagline {
+    color: var(--gold);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    margin-top: 0.75rem;
+    text-indent: 0.18em;
+  }
+  p.lede {
+    color: var(--muted);
+    line-height: 1.7;
+    margin-top: 1.75rem;
+    font-size: 1.05rem;
+  }
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 2.5rem;
+    text-align: left;
+  }
+  .pillars > div { background: var(--surface); padding: 1.1rem 1.2rem; }
+  .pillars h2 {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+  .pillars p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+  footer {
+    margin-top: 3rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+  }
+  footer span { color: var(--gold); }
+</style>
+</head>
+<body>
+<main>
+  <div class="orb" aria-hidden="true"></div>
+  <h1>CORTEX</h1>
+  <div class="tagline">Agentic Operating System</div>
+  <p class="lede">
+    A desktop environment where AI agents don't just answer — they plan, remember,
+    and act. Cortex fuses an orchestrator brain, persistent memory, and a voice
+    interface into one operating surface for getting real work done.
+  </p>
+  <div class="pillars">
+    <div>
+      <h2>Orchestrate</h2>
+      <p>A central brain routes tasks to specialist agents and keeps them on mission.</p>
+    </div>
+    <div>
+      <h2>Remember</h2>
+      <p>File-based memory that persists across sessions — context that compounds.</p>
+    </div>
+    <div>
+      <h2>Speak</h2>
+      <p>A living voice interface. Talk to your OS; it talks back and takes action.</p>
+    </div>
+  </div>
+  <footer>cortex.is-a.dev — built by <span>GitJoe345</span> · in active development</footer>
+</main>
+</body>
+</html>
