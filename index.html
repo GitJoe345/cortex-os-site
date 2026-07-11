@@ -20,6 +20,7 @@
 <meta name="twitter:title" content="Cortex — Agentic Operating System">
 <meta name="twitter:description" content="A desktop environment where AI agents plan, remember, and act — presided over by a living orb. In active development.">
 <meta name="twitter:image" content="https://cortex-os.dev/og.png">
+<script>document.documentElement.classList.add("js");</script>
 <style>
   :root {
     --bg: #07070a;
@@ -120,6 +121,20 @@
   #sky { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; }
   .hero > .hero-inner { position: relative; z-index: 2; max-width: 720px; }
 
+  /* hero arrival — pure CSS so it runs without JS; killed by reduced-motion */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-inner { animation: hero-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .scroll-cue { animation: hero-fade 1s ease 0.85s both; }
+  }
+  @keyframes hero-rise {
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes hero-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
   /* orb system: two orbit rings + breathing core + satellites */
   .orb-sys {
     position: relative;
@@ -158,6 +173,13 @@
   .kicker {
     font-size: 0.78rem; letter-spacing: 0.24em; text-indent: 0.24em;
     text-transform: uppercase; color: var(--gold); font-weight: 600;
+  }
+  @supports (-webkit-background-clip: text) or (background-clip: text) {
+    .kicker {
+      background: linear-gradient(100deg, #f0cf7e 0%, var(--gold) 48%, #96762a 100%);
+      -webkit-background-clip: text; background-clip: text;
+      color: transparent;
+    }
   }
   h1 {
     font-size: clamp(2.9rem, 9vw, 5.4rem);
@@ -297,15 +319,81 @@
   .svg-mono { font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em; fill: var(--muted); }
   .svg-mono.lit { fill: var(--gold); }
 
+  /* ---------- os-window: chrome for real captures ---------- */
+  .os-window {
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid #2b2933;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px -26px rgba(0, 0, 0, 0.85);
+  }
+  .os-bar {
+    display: flex; align-items: center; gap: 0.85rem;
+    padding: 0.62rem 1rem;
+    background: rgba(7, 7, 10, 0.62);
+    border-bottom: 1px solid var(--line);
+  }
+  .os-dots { display: flex; gap: 6px; flex-shrink: 0; }
+  .os-dots i {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #34323d;
+  }
+  .os-dots i:first-child {
+    background: var(--gold);
+    box-shadow: 0 0 7px rgba(212, 168, 67, 0.55);
+  }
+  .os-name {
+    font-family: var(--mono); font-size: 0.64rem;
+    letter-spacing: 0.14em; color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .os-window img { display: block; width: 100%; height: auto; }
+
+  /* ---------- showcase: the proof section ---------- */
+  #proof { position: relative; }
+  #proof::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 62% 42% at 50% 58%, rgba(212, 168, 67, 0.055), transparent);
+  }
+  .showcase-wrap {
+    position: relative;
+    width: min(1120px, calc(100% - 2.75rem));
+    margin-inline: auto;
+    perspective: 1100px;
+  }
+  .os-window.showcase {
+    border-color: rgba(212, 168, 67, 0.3);
+    box-shadow:
+      0 34px 90px -32px rgba(0, 0, 0, 0.92),
+      0 0 90px rgba(212, 168, 67, 0.07);
+    will-change: transform;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .os-window.showcase.tilting { transition: transform 0.1s linear; }
+  .shot-note {
+    margin-top: 1.2rem; text-align: center;
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .shot-note .star { color: var(--gold); margin-right: 0.5em; }
+
+  /* screenshots inside modules (figure.module-shot outranks .module figure by source order) */
+  figure.module-shot,
+  .module figure.module-shot {
+    display: block;
+    margin: 2.1rem 0 0;
+    max-width: 860px;
+    border-color: rgba(212, 168, 67, 0.16);
+  }
+
   /* ---------- status strip ---------- */
   .term {
-    background: var(--surface); border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 1.6rem 1.8rem 1.7rem;
     font-family: var(--mono); font-size: 0.82rem; line-height: 2.1;
     color: var(--muted);
-    overflow-x: auto;
   }
+  .term-body { padding: 1.4rem 1.8rem 1.5rem; overflow-x: auto; }
   .term-head {
     display: flex; align-items: center; gap: 0.7rem;
     color: var(--ink); letter-spacing: 0.2em; font-size: 0.72rem;
@@ -346,11 +434,33 @@
     .spine-label { display: none; }
   }
 
+  /* ---------- scroll reveal (gated behind html.js — no-JS renders everything) ---------- */
+  html.js .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  html.js .reveal.reveal-scale {
+    transform: translateY(20px) scale(0.985);
+  }
+  html.js .reveal.in {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--d, 0s);
+  }
+
   /* ---------- reduced motion ---------- */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation: none !important;
       transition: none !important;
+    }
+    html.js .reveal,
+    html.js .reveal.reveal-scale {
+      opacity: 1;
+      transform: none;
     }
   }
 </style>
@@ -379,7 +489,7 @@
       <p class="promise">A desktop environment where AI agents plan, remember, and&nbsp;act.</p>
       <div class="cta-row">
         <a class="btn" href="https://github.com/GitJoe345" target="_blank" rel="noopener">Follow the build</a>
-        <a class="ghost" href="#what">what it is ↓</a>
+        <a class="ghost" href="#proof">see it running ↓</a>
       </div>
     </div>
     <a class="scroll-cue" href="#what" aria-hidden="true" tabindex="-1">scroll</a>
@@ -387,7 +497,7 @@
 
   <!-- ============ what it is ============ -->
   <section id="what" class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <p class="kicker">What it is</p>
       <h2>One operating surface.</h2>
       <p class="lede">Cortex fuses three things that usually live in separate apps — an orchestrator
@@ -395,24 +505,47 @@
       You don't open a chatbot. You inhabit an OS where agents do the work.</p>
     </div>
     <div class="pillars">
-      <div>
+      <div class="reveal">
         <h3>Orchestrate</h3>
         <p>A central brain routes tasks to specialist agents and keeps them on mission.</p>
       </div>
-      <div>
+      <div class="reveal" style="--d: 0.08s">
         <h3>Remember</h3>
         <p>File-based memory that persists across sessions — context that compounds.</p>
       </div>
-      <div>
+      <div class="reveal" style="--d: 0.16s">
         <h3>Speak</h3>
         <p>A living voice interface. Talk to your OS; it talks back and takes action.</p>
       </div>
     </div>
   </section>
 
+  <!-- ============ proof: the OS running today ============ -->
+  <section id="proof" aria-label="The OS running today">
+    <div class="wrap section-head reveal">
+      <p class="kicker">This is real</p>
+      <h2>The OS, running today.</h2>
+      <p class="lede">Not a concept render — a capture from the working build. This is the
+      Neural Map: your vault rendered as one living galaxy, every agent a star inside it.</p>
+    </div>
+    <div class="showcase-wrap">
+      <div class="reveal reveal-scale">
+        <figure class="os-window showcase" id="showcase-frame">
+          <div class="os-bar" aria-hidden="true">
+            <span class="os-dots"><i></i><i></i><i></i></span>
+            <span class="os-name">cortex — memory · neural map</span>
+          </div>
+          <img src="img/shot-memory.webp" width="1600" height="1000" loading="lazy" decoding="async"
+               alt="The Neural Map screen of the running Cortex build: the memory vault rendered as a golden galaxy of connected stars, agent roster in the left sidebar, voice bar below.">
+        </figure>
+      </div>
+      <p class="shot-note"><span class="star" aria-hidden="true">✶</span>captured from the live build — nothing staged</p>
+    </div>
+  </section>
+
   <!-- ============ modules ============ -->
   <section id="modules" aria-label="The modules">
-    <div class="wrap section-head">
+    <div class="wrap section-head reveal">
       <p class="kicker">The modules</p>
       <h2>Everything attaches to the spine.</h2>
       <p class="lede">Six parts of one system. Hermes — the messenger — runs the spine
@@ -424,8 +557,8 @@
       <span class="spine-label" aria-hidden="true">hermes://spine</span>
 
       <!-- The Orb -->
-      <article class="module">
-        <div class="module-grid">
+      <article class="module reveal">
+        <div class="module-grid wide">
           <div>
             <p class="kicker">Presence</p>
             <h3 class="module-name">The Orb</h3>
@@ -433,29 +566,19 @@
             shows you what the agents are doing — while work runs, activity satellites
             orbit it. One glance at the orb and you know the state of your system.</p>
           </div>
-          <figure aria-hidden="true">
-            <svg width="220" height="180" viewBox="0 0 220 180" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <radialGradient id="og1" cx="38%" cy="32%" r="72%">
-                  <stop offset="0%" stop-color="#f0cf7e"/>
-                  <stop offset="45%" stop-color="#d4a843"/>
-                  <stop offset="100%" stop-color="#3c2f0e"/>
-                </radialGradient>
-              </defs>
-              <ellipse cx="110" cy="90" rx="96" ry="52" fill="none" stroke="#d4a843" stroke-opacity="0.18"/>
-              <ellipse cx="110" cy="90" rx="66" ry="30" fill="none" stroke="#d4a843" stroke-opacity="0.12"/>
-              <circle cx="110" cy="90" r="24" fill="url(#og1)"/>
-              <circle cx="110" cy="90" r="33" fill="none" stroke="#d4a843" stroke-opacity="0.25"/>
-              <circle cx="196" cy="72" r="3" fill="#d4a843"/>
-              <circle cx="30" cy="112" r="2.4" fill="#d4a843" fill-opacity="0.75"/>
-              <circle cx="152" cy="117" r="2" fill="#e8e6df" fill-opacity="0.6"/>
-            </svg>
-          </figure>
         </div>
+        <figure class="os-window module-shot reveal reveal-scale">
+          <div class="os-bar" aria-hidden="true">
+            <span class="os-dots"><i></i><i></i><i></i></span>
+            <span class="os-name">cortex — the orb</span>
+          </div>
+          <img src="img/shot-cortex.webp" width="1600" height="1000" loading="lazy" decoding="async"
+               alt="The Cortex orb tab in the running build: a golden particle orb with a constellation sigil at its core, the agent roster in the sidebar, and a voice bar reading 'Tell Cortex to do something…'.">
+        </figure>
       </article>
 
       <!-- Voice loop -->
-      <article class="module">
+      <article class="module reveal">
         <div class="module-grid">
           <div>
             <p class="kicker">Voice</p>
@@ -486,7 +609,7 @@
       </article>
 
       <!-- The Pantheon -->
-      <article class="module">
+      <article class="module reveal">
         <div class="module-grid wide">
           <div>
             <p class="kicker">Companions</p>
@@ -497,7 +620,7 @@
           </div>
         </div>
         <div class="tiers">
-          <div class="tier">
+          <div class="tier reveal">
             <svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <g stroke="#d4a843" stroke-opacity="0.4" stroke-width="0.8">
                 <path d="M12 50 L22 26 L36 42 L50 20 L60 50 Z" fill="none"/>
@@ -513,7 +636,7 @@
             <p>Deep-reasoning agents trusted with whole missions. They plan, delegate,
             and answer for the outcome.</p>
           </div>
-          <div class="tier">
+          <div class="tier reveal" style="--d: 0.08s">
             <svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <g stroke="#d4a843" stroke-opacity="0.4" stroke-width="0.8">
                 <path d="M36 16 L52 36 L36 56 L20 36 Z" fill="none"/>
@@ -531,7 +654,7 @@
             <p>Focused specialists that own a domain — research, code, markets —
             and report upward.</p>
           </div>
-          <div class="tier">
+          <div class="tier reveal" style="--d: 0.16s">
             <svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <g stroke="#d4a843" stroke-opacity="0.4" stroke-width="0.8">
                 <path d="M36 14 L55 25 L55 47 L36 58 L17 47 L17 25 Z" fill="none"/>
@@ -555,14 +678,15 @@
       </article>
 
       <!-- Neural Map -->
-      <article class="module">
+      <article class="module reveal">
         <div class="module-grid">
           <div>
             <p class="kicker">Memory</p>
             <h3 class="module-name">Neural Map</h3>
             <p>Memory you can walk through. A full-tab, living knowledge graph grown
             from file-based memory that persists across sessions — what the agents
-            learn compounds instead of resetting.</p>
+            learn compounds instead of resetting. You've already seen it:
+            <a href="#proof">the galaxy above</a> is this module, captured live.</p>
           </div>
           <figure aria-hidden="true">
             <svg width="230" height="170" viewBox="0 0 230 170" xmlns="http://www.w3.org/2000/svg">
@@ -585,8 +709,8 @@
       </article>
 
       <!-- Mission Control -->
-      <article class="module">
-        <div class="module-grid">
+      <article class="module reveal">
+        <div class="module-grid wide">
           <div>
             <p class="kicker">Operations</p>
             <h3 class="module-name">Mission Control</h3>
@@ -594,31 +718,19 @@
             running them. What's queued, what's active, what's done: a single view,
             not five tabs.</p>
           </div>
-          <figure aria-hidden="true">
-            <svg width="220" height="150" viewBox="0 0 220 150" xmlns="http://www.w3.org/2000/svg">
-              <g fill="none" stroke="#23222b">
-                <rect x="8" y="10" width="60" height="130" rx="6"/>
-                <rect x="80" y="10" width="60" height="130" rx="6"/>
-                <rect x="152" y="10" width="60" height="130" rx="6"/>
-              </g>
-              <g fill="#8a8778" fill-opacity="0.4">
-                <rect x="16" y="26" width="44" height="10" rx="3"/>
-                <rect x="16" y="44" width="44" height="10" rx="3"/>
-                <rect x="16" y="62" width="44" height="10" rx="3"/>
-                <rect x="88" y="44" width="44" height="10" rx="3"/>
-                <rect x="160" y="26" width="44" height="10" rx="3"/>
-                <rect x="160" y="44" width="44" height="10" rx="3"/>
-              </g>
-              <rect x="88" y="26" width="44" height="10" rx="3" fill="#d4a843"/>
-              <circle cx="110" cy="70" r="3" fill="#d4a843"/>
-              <circle cx="110" cy="70" r="7" fill="none" stroke="#d4a843" stroke-opacity="0.3"/>
-            </svg>
-          </figure>
         </div>
+        <figure class="os-window module-shot reveal reveal-scale">
+          <div class="os-bar" aria-hidden="true">
+            <span class="os-dots"><i></i><i></i><i></i></span>
+            <span class="os-name">cortex — mission control</span>
+          </div>
+          <img src="img/shot-mission.webp" width="1600" height="1000" loading="lazy" decoding="async"
+               alt="Mission Control in the running build: live status cards — Claude online, OpenClaw, Hermes, heartbeat, latency — above today's task list on a starfield.">
+        </figure>
       </article>
 
       <!-- OmniRoute -->
-      <article class="module">
+      <article class="module reveal">
         <div class="module-grid">
           <div>
             <p class="kicker">Routing</p>
@@ -652,11 +764,17 @@
 
   <!-- ============ status ============ -->
   <section id="status" class="wrap" aria-label="Build status">
-    <div class="term">
-      <p class="term-head"><span class="pulse" aria-hidden="true"></span>STATUS — IN ACTIVE DEVELOPMENT</p>
-      <p class="ln">cortex is a working build, not a shipped product</p>
-      <p class="ln">modules land on the spine as they're proven — no releases yet</p>
-      <p class="ln">the build log lives at <a href="https://github.com/GitJoe345" target="_blank" rel="noopener">github.com/GitJoe345</a> <span class="cursor" aria-hidden="true"></span></p>
+    <div class="term os-window reveal">
+      <div class="os-bar" aria-hidden="true">
+        <span class="os-dots"><i></i><i></i><i></i></span>
+        <span class="os-name">cortex — status</span>
+      </div>
+      <div class="term-body">
+        <p class="term-head"><span class="pulse" aria-hidden="true"></span>STATUS — IN ACTIVE DEVELOPMENT</p>
+        <p class="ln">cortex is a working build, not a shipped product</p>
+        <p class="ln">modules land on the spine as they're proven — no releases yet</p>
+        <p class="ln">the build log lives at <a href="https://github.com/GitJoe345" target="_blank" rel="noopener">github.com/GitJoe345</a> <span class="cursor" aria-hidden="true"></span></p>
+      </div>
     </div>
   </section>
 </main>
@@ -781,6 +899,55 @@
       size();
       if (reduce) draw(performance.now());
     }, 160);
+  });
+})();
+
+/* ---------- scroll reveal: one observer, observe once, unobserve ---------- */
+(function () {
+  "use strict";
+  var els = document.querySelectorAll(".reveal");
+  if (!els.length) return;
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var i;
+  if (reduce || !("IntersectionObserver" in window)) {
+    for (i = 0; i < els.length; i++) els[i].classList.add("in");
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    for (var k = 0; k < entries.length; k++) {
+      if (entries[k].isIntersecting) {
+        entries[k].target.classList.add("in");
+        io.unobserve(entries[k].target);
+      }
+    }
+  }, { rootMargin: "0px 0px -8% 0px", threshold: 0.1 });
+  for (i = 0; i < els.length; i++) io.observe(els[i]);
+})();
+
+/* ---------- showcase tilt: desktop pointers only, transform only, <=1.3deg ---------- */
+(function () {
+  "use strict";
+  var frame = document.getElementById("showcase-frame");
+  if (!frame) return;
+  var fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!fine || reduce) return;
+  var rect = null;
+  frame.addEventListener("pointerenter", function () {
+    rect = frame.getBoundingClientRect();
+    frame.classList.add("tilting");
+  });
+  frame.addEventListener("pointermove", function (e) {
+    if (!rect) rect = frame.getBoundingClientRect();
+    var px = (e.clientX - rect.left) / rect.width - 0.5;
+    var py = (e.clientY - rect.top) / rect.height - 0.5;
+    frame.style.transform =
+      "rotateX(" + (-py * 2.6).toFixed(2) + "deg) rotateY(" + (px * 2.6).toFixed(2) + "deg)";
+  });
+  frame.addEventListener("pointerleave", function () {
+    rect = null;
+    frame.classList.remove("tilting");
+    frame.style.transform = "";
   });
 })();
 </script>
