@@ -3,118 +3,786 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cortex — Agentic OS</title>
-<meta name="description" content="Cortex is an agentic operating system: a desktop environment where AI agents plan, remember, and act — with voice, memory, and orchestration built in.">
+<title>Cortex — Agentic Operating System</title>
+<meta name="description" content="Cortex is an agentic operating system — a desktop environment where AI agents plan, remember, and act, presided over by a living orb. In active development.">
+<link rel="canonical" href="https://cortex-os.dev/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="theme-color" content="#07070a">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cortex-os.dev/">
+<meta property="og:site_name" content="Cortex">
+<meta property="og:title" content="Cortex — Agentic Operating System">
+<meta property="og:description" content="A desktop environment where AI agents plan, remember, and act — presided over by a living orb. In active development.">
+<meta property="og:image" content="https://cortex-os.dev/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cortex — Agentic Operating System">
+<meta name="twitter:description" content="A desktop environment where AI agents plan, remember, and act — presided over by a living orb. In active development.">
+<meta name="twitter:image" content="https://cortex-os.dev/og.png">
 <style>
   :root {
     --bg: #07070a;
     --surface: #101016;
-    --text: #e8e6df;
+    --ink: #e8e6df;
     --muted: #8a8778;
     --gold: #d4a843;
-    --border: #23222b;
+    --gold-soft: rgba(212, 168, 67, 0.35);
+    --gold-faint: rgba(212, 168, 67, 0.14);
+    --line: #23222b;
+    --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+    --mono: Consolas, "Cascadia Mono", "SF Mono", Menlo, monospace;
+    --serif: Georgia, "Times New Roman", serif;
+    --pad-section: clamp(4.5rem, 11vw, 8.5rem);
+    --radius: 10px;
   }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-padding-top: 2rem; }
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+
   body {
     background: var(--bg);
-    color: var(--text);
-    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212, 168, 67, 0.12), transparent);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 1rem;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
-  main { max-width: 640px; text-align: center; }
+
+  ::selection { background: var(--gold); color: var(--bg); }
+
+  a { color: var(--gold); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 2px; }
+
+  .skip {
+    position: absolute; left: -9999px; top: 0; z-index: 50;
+    background: var(--gold); color: var(--bg);
+    padding: 0.6rem 1rem; font-size: 0.85rem; border-radius: 0 0 6px 0;
+  }
+  .skip:focus { left: 0; }
+
+  .wrap { width: min(1060px, calc(100% - 2.75rem)); margin-inline: auto; }
+
+  /* ---------- header ---------- */
+  .top {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 5;
+    display: flex; align-items: center; justify-content: space-between;
+    width: min(1060px, calc(100% - 2.75rem)); margin-inline: auto;
+    padding-top: 1.4rem;
+  }
+  .wordmark {
+    font-size: 0.85rem; letter-spacing: 0.34em; font-weight: 600;
+    color: var(--ink); display: flex; align-items: center; gap: 0.6rem;
+  }
+  .wordmark:hover { text-decoration: none; color: var(--gold); }
+  .wordmark::before {
+    content: ""; width: 9px; height: 9px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f0cf7e, var(--gold) 60%);
+    box-shadow: 0 0 8px var(--gold-soft);
+  }
+  .top-link {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .top-link:hover { color: var(--gold); text-decoration: none; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 6rem 1.5rem 4rem;
+    overflow: hidden;
+  }
+  /* static starfield — the no-JS sky */
+  .hero::before {
+    content: ""; position: absolute; inset: 0; z-index: 0;
+    background-image:
+      radial-gradient(1px 1px at 12% 22%, rgba(232,230,223,0.5), transparent 100%),
+      radial-gradient(1px 1px at 78% 14%, rgba(232,230,223,0.35), transparent 100%),
+      radial-gradient(1.5px 1.5px at 63% 76%, rgba(212,168,67,0.4), transparent 100%),
+      radial-gradient(1px 1px at 32% 64%, rgba(232,230,223,0.3), transparent 100%),
+      radial-gradient(1px 1px at 88% 58%, rgba(232,230,223,0.42), transparent 100%),
+      radial-gradient(1.5px 1.5px at 45% 12%, rgba(212,168,67,0.32), transparent 100%),
+      radial-gradient(1px 1px at 8% 82%, rgba(232,230,223,0.3), transparent 100%),
+      radial-gradient(1px 1px at 94% 88%, rgba(232,230,223,0.28), transparent 100%),
+      radial-gradient(ellipse 80% 55% at 50% -12%, rgba(212, 168, 67, 0.13), transparent);
+  }
+  #sky { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; }
+  .hero > .hero-inner { position: relative; z-index: 2; max-width: 720px; }
+
+  /* orb system: two orbit rings + breathing core + satellites */
+  .orb-sys {
+    position: relative;
+    width: min(230px, 54vw); aspect-ratio: 1;
+    margin: 0 auto 2.4rem;
+  }
+  .orb-sys::before, .orb-sys::after {
+    content: ""; position: absolute; border-radius: 50%;
+    border: 1px solid var(--gold-faint);
+  }
+  .orb-sys::before { inset: 0; }
+  .orb-sys::after { inset: 15%; border-color: rgba(212,168,67,0.09); }
   .orb {
-    width: 72px; height: 72px;
-    margin: 0 auto 2rem;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, rgba(212,168,67,0.9), rgba(212,168,67,0.15) 60%, transparent);
-    box-shadow: 0 0 40px rgba(212,168,67,0.35), inset 0 0 20px rgba(212,168,67,0.25);
-    animation: breathe 4s ease-in-out infinite;
+    position: absolute; inset: 30%; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgba(212,168,67,0.95), rgba(212,168,67,0.16) 62%, transparent);
+    box-shadow: 0 0 46px rgba(212,168,67,0.35), inset 0 0 22px rgba(212,168,67,0.28);
+    animation: breathe 4.5s ease-in-out infinite;
   }
   @keyframes breathe {
     0%, 100% { transform: scale(1); opacity: 0.85; }
-    50% { transform: scale(1.08); opacity: 1; }
+    50% { transform: scale(1.07); opacity: 1; }
+  }
+  .sat { position: absolute; border-radius: 50%; animation: orbit 26s linear infinite; }
+  .sat::before {
+    content: ""; position: absolute; top: 50%; left: -2.5px;
+    width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 9px rgba(212,168,67,0.9);
+  }
+  .sat-a { inset: 0; }
+  .sat-b { inset: 15%; animation-duration: 16s; animation-direction: reverse; }
+  .sat-c { inset: 15%; animation-duration: 21s; animation-delay: -8s; }
+  .sat-c::before { width: 3.5px; height: 3.5px; opacity: 0.7; }
+  @keyframes orbit { to { transform: rotate(360deg); } }
+
+  .kicker {
+    font-size: 0.78rem; letter-spacing: 0.24em; text-indent: 0.24em;
+    text-transform: uppercase; color: var(--gold); font-weight: 600;
   }
   h1 {
-    font-size: clamp(2.4rem, 7vw, 3.6rem);
-    letter-spacing: 0.28em;
-    font-weight: 300;
-    text-indent: 0.28em;
+    font-size: clamp(2.9rem, 9vw, 5.4rem);
+    letter-spacing: 0.28em; text-indent: 0.28em;
+    font-weight: 200; line-height: 1.1;
+    margin: 0.9rem 0 0.65rem;
   }
-  .tagline {
-    color: var(--gold);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    margin-top: 0.75rem;
-    text-indent: 0.18em;
+  .hero .promise {
+    color: var(--muted); font-size: clamp(1.02rem, 2.4vw, 1.18rem);
+    max-width: 34em; margin: 1.4rem auto 0;
   }
-  p.lede {
-    color: var(--muted);
-    line-height: 1.7;
-    margin-top: 1.75rem;
-    font-size: 1.05rem;
+  .cta-row { margin-top: 2.6rem; display: flex; gap: 1.4rem; justify-content: center; align-items: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block;
+    background: var(--gold); color: var(--bg);
+    font-weight: 600; font-size: 0.86rem;
+    letter-spacing: 0.14em; text-indent: 0.14em; text-transform: uppercase;
+    padding: 0.95rem 2.1rem; border-radius: 999px;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
   }
+  .btn:hover {
+    text-decoration: none;
+    box-shadow: 0 0 32px rgba(212,168,67,0.45);
+    transform: translateY(-1px);
+  }
+  .ghost {
+    font-family: var(--mono); font-size: 0.76rem; color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .ghost:hover { color: var(--gold); text-decoration: none; }
+
+  .scroll-cue {
+    position: absolute; bottom: 1.9rem; left: 50%; transform: translateX(-50%);
+    z-index: 2; color: var(--muted); font-family: var(--mono); font-size: 0.66rem;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    display: flex; flex-direction: column; align-items: center; gap: 0.55rem;
+  }
+  .scroll-cue::after {
+    content: ""; width: 1px; height: 34px;
+    background: linear-gradient(to bottom, var(--gold-soft), transparent);
+  }
+  .scroll-cue:hover { color: var(--gold); text-decoration: none; }
+
+  /* ---------- sections ---------- */
+  section { padding-block: var(--pad-section); }
+  .section-head { max-width: 620px; margin-bottom: clamp(2.5rem, 6vw, 4rem); }
+  h2 {
+    font-size: clamp(1.7rem, 4.5vw, 2.5rem);
+    font-weight: 250; letter-spacing: 0.06em; line-height: 1.25;
+    margin-top: 0.85rem;
+  }
+  .lede { color: var(--muted); margin-top: 1.15rem; font-size: 1.04rem; }
+
+  /* what-it-is triptych */
   .pillars {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1px; background: var(--line);
+    border: 1px solid var(--line); border-radius: var(--radius);
     overflow: hidden;
-    margin-top: 2.5rem;
-    text-align: left;
   }
-  .pillars > div { background: var(--surface); padding: 1.1rem 1.2rem; }
-  .pillars h2 {
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--gold);
-    font-weight: 600;
-    margin-bottom: 0.4rem;
+  .pillars > div { background: var(--surface); padding: 1.65rem 1.6rem 1.8rem; }
+  .pillars h3 {
+    font-size: 0.76rem; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; margin-bottom: 0.55rem;
   }
-  .pillars p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
-  footer {
-    margin-top: 3rem;
+  .pillars p { font-size: 0.92rem; color: var(--muted); }
+
+  /* ---------- modules + spine ---------- */
+  .modules-flow { position: relative; width: min(920px, calc(100% - 2.75rem)); margin-inline: auto; }
+  .spine {
+    position: absolute; left: 5px; top: -1.5rem; bottom: 1rem; width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--gold-soft) 6%, var(--gold-soft) 94%, transparent);
+  }
+  .spine-label {
+    position: absolute; left: 14px; top: 0;
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.14em;
+    color: var(--muted); writing-mode: vertical-rl;
+  }
+  .module {
+    position: relative;
+    padding: 0 0 clamp(4rem, 9vw, 6.5rem) clamp(2.4rem, 6vw, 4rem);
+  }
+  .module:last-child { padding-bottom: 0.5rem; }
+  .module::before {
+    content: ""; position: absolute; left: 0; top: 0.42em;
+    width: 11px; height: 11px; background: var(--gold);
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+    filter: drop-shadow(0 0 5px rgba(212,168,67,0.7));
+  }
+  .module-grid { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: clamp(1.8rem, 5vw, 3.5rem); align-items: center; }
+  .module-grid.wide { grid-template-columns: minmax(0, 1fr); }
+  .module .kicker { font-size: 0.68rem; }
+  h3.module-name {
+    font-size: clamp(1.35rem, 3.4vw, 1.8rem);
+    font-weight: 300; letter-spacing: 0.09em;
+    margin: 0.55rem 0 0.8rem;
+  }
+  .module p { color: var(--muted); max-width: 46em; }
+  .module figure { margin: 0; display: flex; justify-content: center; }
+  .module svg { max-width: 100%; height: auto; }
+
+  /* pantheon tiers */
+  .tiers {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem;
+    margin-top: 2.4rem;
+  }
+  .tier {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 1.7rem 1.5rem 1.8rem;
+    position: relative;
+  }
+  .tier::after {
+    content: ""; position: absolute; inset: 0; border-radius: var(--radius);
+    pointer-events: none;
+    background: radial-gradient(ellipse 90% 45% at 50% 0%, rgba(212,168,67,0.05), transparent);
+  }
+  .tier svg { display: block; margin-bottom: 1.15rem; }
+  .tier h4 {
+    font-size: 0.82rem; letter-spacing: 0.22em; text-transform: uppercase;
+    font-weight: 600; color: var(--ink);
+  }
+  .tier .rank {
+    font-family: var(--mono); font-size: 0.64rem; color: var(--gold);
+    letter-spacing: 0.1em; display: block; margin-bottom: 0.85rem; margin-top: 0.3rem;
+  }
+  .tier p { font-size: 0.88rem; }
+  .epigraph {
+    font-family: var(--serif); font-style: italic;
+    color: var(--muted); font-size: 1.06rem;
+    margin-top: 2.4rem; padding-left: 1.4rem;
+    border-left: 1px solid var(--gold-soft);
+    max-width: 30em;
+  }
+  .epigraph em { color: var(--gold); font-style: inherit; }
+
+  /* route labels inside svg */
+  .svg-mono { font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em; fill: var(--muted); }
+  .svg-mono.lit { fill: var(--gold); }
+
+  /* ---------- status strip ---------- */
+  .term {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.6rem 1.8rem 1.7rem;
+    font-family: var(--mono); font-size: 0.82rem; line-height: 2.1;
     color: var(--muted);
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
+    overflow-x: auto;
   }
-  footer span { color: var(--gold); }
+  .term-head {
+    display: flex; align-items: center; gap: 0.7rem;
+    color: var(--ink); letter-spacing: 0.2em; font-size: 0.72rem;
+    margin-bottom: 0.9rem;
+  }
+  .term-head .pulse {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--gold);
+    box-shadow: 0 0 8px var(--gold);
+    animation: pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .term .ln::before { content: "> "; color: var(--gold); }
+  .cursor {
+    display: inline-block; width: 0.55em; height: 1.05em;
+    background: var(--gold); vertical-align: text-bottom;
+    animation: blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---------- footer ---------- */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 2.6rem 0 3rem; text-align: center;
+    color: var(--muted); font-size: 0.82rem; letter-spacing: 0.06em;
+  }
+  footer .fmark {
+    display: block; width: 10px; height: 10px; border-radius: 50%;
+    margin: 0 auto 1.1rem;
+    background: radial-gradient(circle at 35% 30%, #f0cf7e, var(--gold) 60%);
+    box-shadow: 0 0 10px var(--gold-soft);
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 820px) {
+    .module-grid { grid-template-columns: 1fr; }
+    .module figure { justify-content: flex-start; }
+    .tiers { grid-template-columns: 1fr; }
+    .spine-label { display: none; }
+  }
+
+  /* ---------- reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
 </style>
 </head>
 <body>
-<main>
-  <div class="orb" aria-hidden="true"></div>
-  <h1>CORTEX</h1>
-  <div class="tagline">Agentic Operating System</div>
-  <p class="lede">
-    A desktop environment where AI agents don't just answer — they plan, remember,
-    and act. Cortex fuses an orchestrator brain, persistent memory, and a voice
-    interface into one operating surface for getting real work done.
-  </p>
-  <div class="pillars">
-    <div>
-      <h2>Orchestrate</h2>
-      <p>A central brain routes tasks to specialist agents and keeps them on mission.</p>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <a class="wordmark" href="#top" aria-label="Cortex — back to top">CORTEX</a>
+  <a class="top-link" href="https://github.com/GitJoe345" target="_blank" rel="noopener">github ↗</a>
+</header>
+
+<main id="main">
+  <!-- ============ hero ============ -->
+  <section class="hero" id="top" aria-label="Cortex — Agentic Operating System">
+    <canvas id="sky" aria-hidden="true"></canvas>
+    <div class="hero-inner">
+      <div class="orb-sys" aria-hidden="true">
+        <span class="sat sat-a"></span>
+        <span class="sat sat-b"></span>
+        <span class="sat sat-c"></span>
+        <div class="orb"></div>
+      </div>
+      <p class="kicker">Agentic Operating System</p>
+      <h1>CORTEX</h1>
+      <p class="promise">A desktop environment where AI agents plan, remember, and&nbsp;act.</p>
+      <div class="cta-row">
+        <a class="btn" href="https://github.com/GitJoe345" target="_blank" rel="noopener">Follow the build</a>
+        <a class="ghost" href="#what">what it is ↓</a>
+      </div>
     </div>
-    <div>
-      <h2>Remember</h2>
-      <p>File-based memory that persists across sessions — context that compounds.</p>
+    <a class="scroll-cue" href="#what" aria-hidden="true" tabindex="-1">scroll</a>
+  </section>
+
+  <!-- ============ what it is ============ -->
+  <section id="what" class="wrap">
+    <div class="section-head">
+      <p class="kicker">What it is</p>
+      <h2>One operating surface.</h2>
+      <p class="lede">Cortex fuses three things that usually live in separate apps — an orchestrator
+      brain, persistent memory, and a voice — into a single desktop environment.
+      You don't open a chatbot. You inhabit an OS where agents do the work.</p>
     </div>
-    <div>
-      <h2>Speak</h2>
-      <p>A living voice interface. Talk to your OS; it talks back and takes action.</p>
+    <div class="pillars">
+      <div>
+        <h3>Orchestrate</h3>
+        <p>A central brain routes tasks to specialist agents and keeps them on mission.</p>
+      </div>
+      <div>
+        <h3>Remember</h3>
+        <p>File-based memory that persists across sessions — context that compounds.</p>
+      </div>
+      <div>
+        <h3>Speak</h3>
+        <p>A living voice interface. Talk to your OS; it talks back and takes action.</p>
+      </div>
     </div>
-  </div>
-  <footer>cortex.is-a.dev — built by <span>GitJoe345</span> · in active development</footer>
+  </section>
+
+  <!-- ============ modules ============ -->
+  <section id="modules" aria-label="The modules">
+    <div class="wrap section-head">
+      <p class="kicker">The modules</p>
+      <h2>Everything attaches to the spine.</h2>
+      <p class="lede">Six parts of one system. Hermes — the messenger — runs the spine
+      that carries every request, reply, and result between them.</p>
+    </div>
+
+    <div class="modules-flow">
+      <div class="spine" aria-hidden="true"></div>
+      <span class="spine-label" aria-hidden="true">hermes://spine</span>
+
+      <!-- The Orb -->
+      <article class="module">
+        <div class="module-grid">
+          <div>
+            <p class="kicker">Presence</p>
+            <h3 class="module-name">The Orb</h3>
+            <p>An ambient presence across the whole OS. It listens, it speaks, and it
+            shows you what the agents are doing — while work runs, activity satellites
+            orbit it. One glance at the orb and you know the state of your system.</p>
+          </div>
+          <figure aria-hidden="true">
+            <svg width="220" height="180" viewBox="0 0 220 180" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="og1" cx="38%" cy="32%" r="72%">
+                  <stop offset="0%" stop-color="#f0cf7e"/>
+                  <stop offset="45%" stop-color="#d4a843"/>
+                  <stop offset="100%" stop-color="#3c2f0e"/>
+                </radialGradient>
+              </defs>
+              <ellipse cx="110" cy="90" rx="96" ry="52" fill="none" stroke="#d4a843" stroke-opacity="0.18"/>
+              <ellipse cx="110" cy="90" rx="66" ry="30" fill="none" stroke="#d4a843" stroke-opacity="0.12"/>
+              <circle cx="110" cy="90" r="24" fill="url(#og1)"/>
+              <circle cx="110" cy="90" r="33" fill="none" stroke="#d4a843" stroke-opacity="0.25"/>
+              <circle cx="196" cy="72" r="3" fill="#d4a843"/>
+              <circle cx="30" cy="112" r="2.4" fill="#d4a843" fill-opacity="0.75"/>
+              <circle cx="152" cy="117" r="2" fill="#e8e6df" fill-opacity="0.6"/>
+            </svg>
+          </figure>
+        </div>
+      </article>
+
+      <!-- Voice loop -->
+      <article class="module">
+        <div class="module-grid">
+          <div>
+            <p class="kicker">Voice</p>
+            <h3 class="module-name">Voice loop</h3>
+            <p>Talk to your OS. A wake word summons it; it answers — and then it acts.
+            Ask for something and the loop closes: heard, understood, done,
+            reported back in its own voice.</p>
+          </div>
+          <figure aria-hidden="true">
+            <svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
+              <g stroke="#d4a843" stroke-linecap="round">
+                <line x1="18" y1="62" x2="18" y2="78" stroke-opacity="0.5" stroke-width="2"/>
+                <line x1="28" y1="52" x2="28" y2="88" stroke-opacity="0.7" stroke-width="2"/>
+                <line x1="38" y1="42" x2="38" y2="98" stroke-width="2"/>
+                <line x1="48" y1="55" x2="48" y2="85" stroke-opacity="0.7" stroke-width="2"/>
+                <line x1="58" y1="63" x2="58" y2="77" stroke-opacity="0.5" stroke-width="2"/>
+              </g>
+              <circle cx="110" cy="70" r="14" fill="none" stroke="#d4a843" stroke-width="1.5"/>
+              <circle cx="110" cy="70" r="5" fill="#d4a843"/>
+              <path d="M132 52 a28 28 0 0 1 0 36" fill="none" stroke="#d4a843" stroke-opacity="0.55"/>
+              <path d="M142 42 a42 42 0 0 1 0 56" fill="none" stroke="#d4a843" stroke-opacity="0.35"/>
+              <path d="M152 32 a56 56 0 0 1 0 76" fill="none" stroke="#d4a843" stroke-opacity="0.18"/>
+              <line x1="164" y1="70" x2="196" y2="70" stroke="#d4a843" stroke-opacity="0.7"/>
+              <path d="M192 64 l8 6 -8 6" fill="none" stroke="#d4a843" stroke-opacity="0.7"/>
+            </svg>
+          </figure>
+        </div>
+      </article>
+
+      <!-- The Pantheon -->
+      <article class="module">
+        <div class="module-grid wide">
+          <div>
+            <p class="kicker">Companions</p>
+            <h3 class="module-name">The Pantheon</h3>
+            <p>The agents are companions — specialists, each bearing a constellation
+            sigil, ranked in three tiers. You don't manage prompts; you dispatch
+            companions suited to the work.</p>
+          </div>
+        </div>
+        <div class="tiers">
+          <div class="tier">
+            <svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <g stroke="#d4a843" stroke-opacity="0.4" stroke-width="0.8">
+                <path d="M12 50 L22 26 L36 42 L50 20 L60 50 Z" fill="none"/>
+              </g>
+              <g fill="#d4a843">
+                <circle cx="12" cy="50" r="2"/><circle cx="22" cy="26" r="2.4"/>
+                <circle cx="36" cy="42" r="2"/><circle cx="50" cy="20" r="2.8"/>
+                <circle cx="60" cy="50" r="2"/>
+              </g>
+            </svg>
+            <h4>Olympian</h4>
+            <span class="rank">tier i — the principals</span>
+            <p>Deep-reasoning agents trusted with whole missions. They plan, delegate,
+            and answer for the outcome.</p>
+          </div>
+          <div class="tier">
+            <svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <g stroke="#d4a843" stroke-opacity="0.4" stroke-width="0.8">
+                <path d="M36 16 L52 36 L36 56 L20 36 Z" fill="none"/>
+                <path d="M20 36 L8 26 M52 36 L64 26" fill="none"/>
+              </g>
+              <g fill="#d4a843">
+                <circle cx="36" cy="16" r="2.2"/><circle cx="52" cy="36" r="2"/>
+                <circle cx="36" cy="56" r="2"/><circle cx="20" cy="36" r="2"/>
+                <circle cx="36" cy="36" r="2.8"/><circle cx="8" cy="26" r="1.6"/>
+                <circle cx="64" cy="26" r="1.6"/>
+              </g>
+            </svg>
+            <h4>Daimon</h4>
+            <span class="rank">tier ii — the intermediaries</span>
+            <p>Focused specialists that own a domain — research, code, markets —
+            and report upward.</p>
+          </div>
+          <div class="tier">
+            <svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <g stroke="#d4a843" stroke-opacity="0.4" stroke-width="0.8">
+                <path d="M36 14 L55 25 L55 47 L36 58 L17 47 L17 25 Z" fill="none"/>
+                <path d="M36 14 L36 58 M17 25 L55 47 M55 25 L17 47" fill="none" stroke-opacity="0.18"/>
+              </g>
+              <g fill="#d4a843">
+                <circle cx="36" cy="14" r="2"/><circle cx="55" cy="25" r="2"/>
+                <circle cx="55" cy="47" r="2"/><circle cx="36" cy="58" r="2"/>
+                <circle cx="17" cy="47" r="2"/><circle cx="17" cy="25" r="2"/>
+                <circle cx="36" cy="36" r="2.4"/>
+              </g>
+            </svg>
+            <h4>Automaton</h4>
+            <span class="rank">tier iii — the hands</span>
+            <p>Small, fast workers that execute single tasks — fetch, file, format —
+            and return.</p>
+          </div>
+        </div>
+        <p class="epigraph">Every message between you and the companions passes through
+        <em>Hermes</em> — the messenger runs the spine.</p>
+      </article>
+
+      <!-- Neural Map -->
+      <article class="module">
+        <div class="module-grid">
+          <div>
+            <p class="kicker">Memory</p>
+            <h3 class="module-name">Neural Map</h3>
+            <p>Memory you can walk through. A full-tab, living knowledge graph grown
+            from file-based memory that persists across sessions — what the agents
+            learn compounds instead of resetting.</p>
+          </div>
+          <figure aria-hidden="true">
+            <svg width="230" height="170" viewBox="0 0 230 170" xmlns="http://www.w3.org/2000/svg">
+              <g stroke="#d4a843" stroke-opacity="0.28" stroke-width="0.8">
+                <path d="M115 82 L52 40 M115 82 L178 44 M115 82 L66 128 M115 82 L172 126 M115 82 L115 22
+                         M52 40 L20 72 M178 44 L206 78 M66 128 L36 150 M172 126 L200 148 M52 40 L115 22 M178 44 L115 22" fill="none"/>
+              </g>
+              <g fill="#e8e6df" fill-opacity="0.65">
+                <circle cx="52" cy="40" r="3"/><circle cx="178" cy="44" r="3"/>
+                <circle cx="66" cy="128" r="3"/><circle cx="172" cy="126" r="3"/>
+                <circle cx="115" cy="22" r="2.6"/><circle cx="20" cy="72" r="2"/>
+                <circle cx="206" cy="78" r="2"/><circle cx="36" cy="150" r="2"/>
+                <circle cx="200" cy="148" r="2"/>
+              </g>
+              <circle cx="115" cy="82" r="7" fill="#d4a843"/>
+              <circle cx="115" cy="82" r="13" fill="none" stroke="#d4a843" stroke-opacity="0.35"/>
+            </svg>
+          </figure>
+        </div>
+      </article>
+
+      <!-- Mission Control -->
+      <article class="module">
+        <div class="module-grid">
+          <div>
+            <p class="kicker">Operations</p>
+            <h3 class="module-name">Mission Control</h3>
+            <p>One board for everything in flight — tasks, todos, and the agents
+            running them. What's queued, what's active, what's done: a single view,
+            not five tabs.</p>
+          </div>
+          <figure aria-hidden="true">
+            <svg width="220" height="150" viewBox="0 0 220 150" xmlns="http://www.w3.org/2000/svg">
+              <g fill="none" stroke="#23222b">
+                <rect x="8" y="10" width="60" height="130" rx="6"/>
+                <rect x="80" y="10" width="60" height="130" rx="6"/>
+                <rect x="152" y="10" width="60" height="130" rx="6"/>
+              </g>
+              <g fill="#8a8778" fill-opacity="0.4">
+                <rect x="16" y="26" width="44" height="10" rx="3"/>
+                <rect x="16" y="44" width="44" height="10" rx="3"/>
+                <rect x="16" y="62" width="44" height="10" rx="3"/>
+                <rect x="88" y="44" width="44" height="10" rx="3"/>
+                <rect x="160" y="26" width="44" height="10" rx="3"/>
+                <rect x="160" y="44" width="44" height="10" rx="3"/>
+              </g>
+              <rect x="88" y="26" width="44" height="10" rx="3" fill="#d4a843"/>
+              <circle cx="110" cy="70" r="3" fill="#d4a843"/>
+              <circle cx="110" cy="70" r="7" fill="none" stroke="#d4a843" stroke-opacity="0.3"/>
+            </svg>
+          </figure>
+        </div>
+      </article>
+
+      <!-- OmniRoute -->
+      <article class="module">
+        <div class="module-grid">
+          <div>
+            <p class="kicker">Routing</p>
+            <h3 class="module-name">OmniRoute</h3>
+            <p>Any request, the right mind. Cortex routes each task to the model or
+            agent best suited to it — Claude, GLM, Grok, or a local model — without
+            you switching apps or thinking about it.</p>
+          </div>
+          <figure aria-hidden="true">
+            <svg width="230" height="160" viewBox="0 0 230 160" xmlns="http://www.w3.org/2000/svg">
+              <g stroke="#d4a843" fill="none">
+                <line x1="6" y1="80" x2="76" y2="80" stroke-opacity="0.7"/>
+                <path d="M96 80 L152 26 M96 80 L152 62 M96 80 L152 98 M96 80 L152 134" stroke-opacity="0.35"/>
+                <path d="M86 70 L96 80 L86 90 L76 80 Z" stroke-opacity="0.9"/>
+              </g>
+              <circle cx="86" cy="80" r="2.5" fill="#d4a843"/>
+              <g fill="#d4a843">
+                <circle cx="156" cy="26" r="3"/><circle cx="156" cy="62" r="2.4" fill-opacity="0.6"/>
+                <circle cx="156" cy="98" r="2.4" fill-opacity="0.6"/><circle cx="156" cy="134" r="2.4" fill-opacity="0.6"/>
+              </g>
+              <text x="166" y="29.5" class="svg-mono lit">claude</text>
+              <text x="166" y="65.5" class="svg-mono">glm</text>
+              <text x="166" y="101.5" class="svg-mono">grok</text>
+              <text x="166" y="137.5" class="svg-mono">local</text>
+            </svg>
+          </figure>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ status ============ -->
+  <section id="status" class="wrap" aria-label="Build status">
+    <div class="term">
+      <p class="term-head"><span class="pulse" aria-hidden="true"></span>STATUS — IN ACTIVE DEVELOPMENT</p>
+      <p class="ln">cortex is a working build, not a shipped product</p>
+      <p class="ln">modules land on the spine as they're proven — no releases yet</p>
+      <p class="ln">the build log lives at <a href="https://github.com/GitJoe345" target="_blank" rel="noopener">github.com/GitJoe345</a> <span class="cursor" aria-hidden="true"></span></p>
+    </div>
+  </section>
 </main>
+
+<footer>
+  <span class="fmark" aria-hidden="true"></span>
+  cortex-os.dev · built by <a href="https://github.com/GitJoe345" target="_blank" rel="noopener">GitJoe345</a>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var canvas = document.getElementById("sky");
+  if (!canvas || !canvas.getContext) return;
+  var ctx = canvas.getContext("2d");
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var GOLD = "212,168,67", PALE = "232,230,223";
+  var nodes = [], links = [], maxNodes = 60;
+  var W = 0, H = 0, raf = 0, growTimer = 0;
+
+  function size() {
+    var rect = canvas.parentElement.getBoundingClientRect();
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = Math.max(1, Math.round(rect.width));
+    H = Math.max(1, Math.round(rect.height));
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    maxNodes = W < 640 ? 36 : W < 1100 ? 52 : 68;
+  }
+
+  function spawn(immediate) {
+    var now = performance.now();
+    var n = {
+      x: Math.random(), y: Math.random(),
+      vx: (Math.random() - 0.5) * 0.00004,
+      vy: (Math.random() - 0.5) * 0.00004,
+      r: 0.6 + Math.random() * 1.1,
+      tw: Math.random() * 6.2832,
+      born: immediate ? now - 9999 : now
+    };
+    var idx = nodes.length, near = [];
+    for (var i = 0; i < nodes.length; i++) {
+      var dx = (nodes[i].x - n.x) * W, dy = (nodes[i].y - n.y) * H;
+      near.push([dx * dx + dy * dy, i]);
+    }
+    near.sort(function (a, b) { return a[0] - b[0]; });
+    var reach = Math.min(W, H) * 0.3;
+    for (var k = 0; k < Math.min(2, near.length); k++) {
+      if (near[k][0] < reach * reach) links.push({ a: idx, b: near[k][1], born: n.born });
+    }
+    nodes.push(n);
+  }
+
+  function draw(t) {
+    ctx.clearRect(0, 0, W, H);
+    var i, n;
+    for (i = 0; i < links.length; i++) {
+      var L = links[i];
+      var la = nodes[L.a], lb = nodes[L.b];
+      var age = Math.min(1, (t - L.born) / 1600);
+      ctx.strokeStyle = "rgba(" + GOLD + "," + (0.15 * age).toFixed(3) + ")";
+      ctx.lineWidth = 0.7;
+      ctx.beginPath();
+      ctx.moveTo(la.x * W, la.y * H);
+      ctx.lineTo(lb.x * W, lb.y * H);
+      ctx.stroke();
+    }
+    for (i = 0; i < nodes.length; i++) {
+      n = nodes[i];
+      var fade = Math.min(1, (t - n.born) / 1100);
+      var glow = 0.55 + 0.3 * Math.sin(t / 950 + n.tw);
+      ctx.fillStyle = "rgba(" + (i % 5 === 0 ? GOLD : PALE) + "," + (fade * glow * 0.72).toFixed(3) + ")";
+      ctx.beginPath();
+      ctx.arc(n.x * W, n.y * H, n.r, 0, 6.2832);
+      ctx.fill();
+    }
+  }
+
+  function step(t) {
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      n.x += n.vx; n.y += n.vy;
+      if (n.x < 0.01 || n.x > 0.99) n.vx = -n.vx;
+      if (n.y < 0.01 || n.y > 0.99) n.vy = -n.vy;
+    }
+    draw(t);
+    raf = requestAnimationFrame(step);
+  }
+
+  function startGrowth() {
+    growTimer = setInterval(function () {
+      if (nodes.length >= maxNodes) { clearInterval(growTimer); growTimer = 0; return; }
+      spawn(false);
+    }, 620);
+  }
+
+  size();
+  var seed = reduce ? maxNodes : 14;
+  for (var s = 0; s < seed; s++) spawn(true);
+
+  if (reduce) {
+    draw(performance.now());
+  } else {
+    startGrowth();
+    raf = requestAnimationFrame(step);
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) {
+        cancelAnimationFrame(raf);
+        if (growTimer) { clearInterval(growTimer); growTimer = 0; }
+      } else {
+        raf = requestAnimationFrame(step);
+        if (nodes.length < maxNodes) startGrowth();
+      }
+    });
+  }
+
+  var resizeWait = 0;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeWait);
+    resizeWait = setTimeout(function () {
+      size();
+      if (reduce) draw(performance.now());
+    }, 160);
+  });
+})();
+</script>
 </body>
 </html>
