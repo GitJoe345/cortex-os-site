@@ -1,0 +1,158 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const d = post.data;
+
+const pageUrl = new URL(`/blog/${post.id}/`, Astro.site).href;
+const siteUrl = Astro.site!.href;
+
+const articleJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: d.title,
+  description: d.description,
+  datePublished: d.publishDate.toISOString(),
+  ...(d.updatedDate && { dateModified: d.updatedDate.toISOString() }),
+  ...(d.heroImage && { image: new URL(d.heroImage, Astro.site).href }),
+  keywords: d.keyword,
+  author: { '@type': 'Organization', name: 'Cortex', url: siteUrl },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Cortex',
+    url: siteUrl,
+    logo: { '@type': 'ImageObject', url: new URL('/favicon.svg', Astro.site).href },
+  },
+  mainEntityOfPage: pageUrl,
+  url: pageUrl,
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Cortex', item: siteUrl },
+    { '@type': 'ListItem', position: 2, name: 'Field Notes', item: new URL('/blog/', Astro.site).href },
+    { '@type': 'ListItem', position: 3, name: d.title, item: pageUrl },
+  ],
+};
+
+const schemaJsonLd = JSON.stringify([articleJsonLd, breadcrumbJsonLd]);
+
+const fmtDate = (dt: Date) =>
+  dt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+<BaseLayout
+  title={`${d.title} — Cortex`}
+  description={d.description}
+  ogType="article"
+  ogImage={d.heroImage ?? '/og.png'}
+  schemaJsonLd={schemaJsonLd}
+>
+  <nav class="crumb" aria-label="Breadcrumb">
+    <a href="/">Cortex</a>
+    <span aria-hidden="true">/</span>
+    <a href="/blog">Field Notes</a>
+    <span aria-hidden="true">/</span>
+    <span class="crumb-current" aria-current="page">{d.title}</span>
+  </nav>
+
+  <article class="post">
+    <header class="post-header">
+      <p class="kicker">Field note</p>
+      <h1>{d.title}</h1>
+      <p class="post-meta">
+        <time datetime={d.publishDate.toISOString()}>{fmtDate(d.publishDate)}</time>
+        {d.updatedDate && <span> · updated {fmtDate(d.updatedDate)}</span>}
+      </p>
+      {d.tags.length > 0 && <p class="post-tags">{d.tags.join(' · ')}</p>}
+    </header>
+
+    {d.heroImage && (
+      <img class="hero-img" src={d.heroImage} alt={d.title} loading="lazy" decoding="async" />
+    )}
+
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+
+  <p class="back"><a href="/blog">← All field notes</a></p>
+</BaseLayout>
+
+<style is:global>
+  .crumb {
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em;
+    color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.55rem;
+    margin-bottom: 2rem;
+  }
+  .crumb a { color: var(--muted); }
+  .crumb a:hover { color: var(--gold); }
+  .crumb .crumb-current { color: var(--ink); }
+
+  .post-header { margin-bottom: 2.4rem; }
+  .post-header h1 {
+    font-size: clamp(2rem, 5.5vw, 2.9rem);
+    font-weight: 200; letter-spacing: 0.03em; line-height: 1.18;
+    margin: 0.7rem 0 0.9rem;
+  }
+  .post-meta {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .post-tags {
+    margin-top: 0.7rem; font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.1em; color: var(--gold);
+  }
+  .hero-img {
+    display: block; width: 100%; height: auto; border-radius: var(--radius);
+    border: 1px solid var(--line); margin-bottom: 2.4rem;
+  }
+
+  /* ---------- prose (rendered markdown) ---------- */
+  .prose { color: var(--ink); font-size: 1.05rem; line-height: 1.8; }
+  .prose > * + * { margin-top: 1.35rem; }
+  .prose h2 {
+    font-size: clamp(1.4rem, 3.6vw, 1.85rem); font-weight: 300;
+    letter-spacing: 0.03em; line-height: 1.3; margin-top: 2.8rem;
+    color: var(--ink);
+  }
+  .prose h3 {
+    font-size: 1.2rem; font-weight: 400; letter-spacing: 0.02em;
+    margin-top: 2rem; color: var(--ink);
+  }
+  .prose p { color: #cfcdc3; }
+  .prose a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
+  .prose strong { color: var(--ink); font-weight: 600; }
+  .prose ul, .prose ol { padding-left: 1.4rem; color: #cfcdc3; }
+  .prose li + li { margin-top: 0.5rem; }
+  .prose li::marker { color: var(--gold); }
+  .prose blockquote {
+    border-left: 2px solid var(--gold-soft); padding-left: 1.3rem;
+    font-family: var(--serif); font-style: italic; color: var(--muted);
+  }
+  .prose code {
+    font-family: var(--mono); font-size: 0.88em;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 5px; padding: 0.12em 0.4em;
+  }
+  .prose pre {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 1.2rem 1.4rem; overflow-x: auto;
+    font-size: 0.9rem;
+  }
+  .prose pre code { background: none; border: none; padding: 0; }
+  .prose hr { border: none; border-top: 1px solid var(--line); }
+
+  .back {
+    margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.06em;
+  }
+</style>
